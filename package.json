@@ -1,6 +1,6 @@
 {
   "name": "@swerr/cli",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Swagger but for errors! Automatically document your errors based on JSDocs comments.",
   "type": "module",
   "bin": {
