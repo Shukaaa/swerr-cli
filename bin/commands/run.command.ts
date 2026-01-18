@@ -60,7 +60,7 @@ async function config(configPath: string | undefined): Promise<SwerrConfig | nul
         let cfg: SwerrConfig | null = null;
         
         if (existsSync(configPath)) {
-            LogUtils.debug(`Loading configuration from ${configPath}`);
+            LogUtils.info(`Loading configuration from ${configPath}`);
             try {
                 const imported = await import(pathToFileURL(configPath).href);
                 cfg = imported.default ?? imported;

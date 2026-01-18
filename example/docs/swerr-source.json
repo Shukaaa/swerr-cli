@@ -4,8 +4,8 @@
   "version": "1.0.5",
   "errors": [
     {
-      "name": "DatabaseException",
-      "description": "Exception class with automatic naming based on the class name.",
+      "name": "AutomaticNamingException",
+      "description": "Exception class with automatic naming based on the file name.",
       "tags": [
         {
           "name": "error",
@@ -14,12 +14,12 @@
       ]
     },
     {
-      "name": "ThisIsASimpleDatabaseError",
+      "name": "ThisIsACustomNamedException",
       "description": "Exception class with naming based on the error property.",
       "tags": [
         {
           "name": "error",
-          "description": "ThisIsASimpleDatabaseError"
+          "description": "ThisIsACustomNamedException"
         }
       ]
     }

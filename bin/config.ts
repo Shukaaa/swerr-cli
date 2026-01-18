@@ -1,8 +1,3 @@
-export const ALLOWED_TAGS = [
-    "error",
-    "exception",
-]
-
 export const DEFAULT_IGNORE_DIRS = new Set([
     "node_modules",
     ".git",
