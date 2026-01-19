@@ -1,6 +1,6 @@
 {
   "name": "@swerr/cli",
-  "version": "0.0.4",
+  "version": "0.0.0",
   "description": "Swagger but for errors! Automatically document your errors based on JSDocs comments.",
   "type": "module",
   "bin": {
@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "test": "vitest run",
     "watch": "tsc --watch"
   },
   "repository": "https://github.com/Shukaaa/swerr-cli",
@@ -28,8 +29,14 @@
     "commander": "^14.0.1"
   },
   "devDependencies": {
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/github": "^12.0.2",
+    "@semantic-release/npm": "^13.1.3",
+    "@semantic-release/release-notes-generator": "^14.1.0",
     "@types/node": "^24.3.2",
-    "typescript": "^5.9.2"
+    "semantic-release": "^25.0.2",
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.17"
   },
   "files": [
     "dist",
