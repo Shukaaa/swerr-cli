@@ -25,7 +25,7 @@
   "author": "Shukaaa",
   "license": "ISC",
   "dependencies": {
-    "@swerr/core": "^0.0.4",
+    "@swerr/core": "^1.0.0",
     "commander": "^14.0.1"
   },
   "devDependencies": {
