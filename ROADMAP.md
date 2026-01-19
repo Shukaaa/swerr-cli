@@ -3,8 +3,8 @@
 - implement unit tests for converters
 
 # 1.1 Refinement
-- Better cmd description and help texts
 - Alternative config path via `--config` flag
+- `--force` flag to overwrite existing output files
 - `@error` tag should not be required in JSDoc comments with default config
   - You can change this behavior via config if needed
   - `sourceFile.requireErrorTag` config option
