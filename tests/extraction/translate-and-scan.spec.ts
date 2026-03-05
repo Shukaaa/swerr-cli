@@ -172,4 +172,44 @@ describe("swerr-scan (scanJsdocs)", () => {
 		expect(b.description).toContain("A test error description");
 		expect(b.tags.some((t: any) => t.name === "error" && t.raw.includes("E_TEST"))).toBeTruthy();
 	});
+
+	it("uses custom errorClassDetector to filter blocks", async () => {
+		const fsMock: any = await import("node:fs");
+		const root = path.resolve("vfs-custom-detector");
+		const errorFileContent = `/**
+ * Custom error class
+ * @description This should be included
+ */
+class CustomError extends Error {}`;
+		const normalFileContent = `/**
+ * Normal class
+ * @description This should be excluded
+ */
+class NormalClass {}`;
+
+		fsMock.__setMockFiles(root, {
+			files: {
+				"CustomException.js": errorFileContent,
+				"NormalClass.js": normalFileContent,
+			},
+			dirs: {
+				".": [
+					{ name: "CustomException.js", isDir: false },
+					{ name: "NormalClass.js", isDir: false },
+				],
+			},
+		});
+
+		const { scanJsdocs } = await import("../../bin/extraction/swerr-scan.js");
+
+		const result = await scanJsdocs(root, {
+			errorClassDetector: (ctx: any) => {
+				return ctx.fileName.endsWith("Exception.js");
+			}
+		});
+
+		expect(result.blocks.length).toBe(1);
+		expect(result.blocks[0].filePath).toContain("CustomException.js");
+		expect(result.blocks[0].description).toContain("Custom error class");
+	});
 });

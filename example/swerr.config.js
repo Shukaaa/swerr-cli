@@ -18,6 +18,9 @@ export default {
             whitelistExtensions: [
                 ".js"
             ],
+            errorClassDetector: (ctx) => {
+                 return ctx.fileName.endsWith("Exception.js");
+            }
         }
     },
     converter: [

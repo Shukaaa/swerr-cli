@@ -19,7 +19,19 @@ export default {
         },
         options: {
             ignoreDirs: [], // Directories to ignore during scanning (optional)
-            whitelistExtensions: [".js", ".ts"] // File extensions to include during scanning (optional)
+            whitelistExtensions: [".js", ".ts"], // File extensions to include during scanning (optional)
+            // Optional: Custom error class detector function
+            // errorClassDetector: (ctx) => {
+            //     // Example: Only include blocks with @error tag
+            //     return ctx.jsDocTags.some(tag => tag.name === "error");
+            //     
+            //     // Example: Include blocks in files ending with "Exception.js" OR with @error tag
+            //     // return ctx.fileName.endsWith("Exception.js") || 
+            //     //        ctx.jsDocTags.some(tag => tag.name === "error");
+            //     
+            //     // Example: Check if the file content contains "extends Error"
+            //     // return ctx.fileContent.includes("extends Error");
+            // }
         }
     },
     converter: [ // Example converters
