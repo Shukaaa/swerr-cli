@@ -2,7 +2,7 @@ import {markdownConverter, htmlConverter} from "@swerr/converter"
 
 export default {
     sourceFile: {
-        inputDir: "./src/exceptions",
+        inputDirs: ["./src/exceptions"],
         meta: {
             projectName: "Muffin API",
             description: "The API description",

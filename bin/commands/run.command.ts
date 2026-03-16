@@ -9,7 +9,7 @@ import {LogUtils, SwerrConfig, SwerrScheme} from "@swerr/core";
 
 export const runCommand = async (configPath: string | undefined) => {
 	const swerrConfig = await config(configPath);
-	const sourceDir = swerrConfig?.sourceFile?.inputDir || null
+	const sourceDirs = swerrConfig?.sourceFile?.inputDirs || null
 	const outputDir = swerrConfig?.sourceFile?.export?.outputDir || null
 	
 	if (!swerrConfig) {
@@ -17,20 +17,22 @@ export const runCommand = async (configPath: string | undefined) => {
 		process.exit(1);
 	}
 	
-	if (!sourceDir || !outputDir) {
+	if (!sourceDirs || sourceDirs.length === 0 || !outputDir) {
 		LogUtils.error("Source and output directories must be specified either via configuration file.");
 		process.exit(1);
 	}
 	
 	LogUtils.success("Swerr Configuration loaded.");
 	
-	const absoluteSourceDir = path.resolve(process.cwd(), sourceDir);
 	const absoluteOutputDir = path.resolve(process.cwd(), outputDir);
 	
-	const sourceExists = fs.existsSync(absoluteSourceDir);
-	if (!sourceExists) {
-		LogUtils.error(`Source directory "${absoluteSourceDir}" does not exist.`);
-		process.exit(1);
+	for (const sourceDir of sourceDirs) {
+		const absoluteSourceDir = path.resolve(process.cwd(), sourceDir);
+		const sourceExists = fs.existsSync(absoluteSourceDir);
+		if (!sourceExists) {
+			LogUtils.error(`Source directory "${absoluteSourceDir}" does not exist.`);
+			process.exit(1);
+		}
 	}
 	
 	try {
@@ -40,15 +42,26 @@ export const runCommand = async (configPath: string | undefined) => {
 		process.exit(1);
 	}
 	
-	scanJsdocs(absoluteSourceDir, swerrConfig?.sourceFile.options || {}).then(async result => {
-		LogUtils.info(`Scanned ${result.blocks.length} JSDocs block(s) from ${result.scannedFiles} file(s).`);
-		const scheme = translateToSourceScheme(result, swerrConfig)
+	try {
+		const scanOptions = swerrConfig?.sourceFile.options || {};
+		const mergedResult = { rootDir: sourceDirs[0], blocks: [] as any[], scannedFiles: 0, skippedFiles: 0 };
+		
+		for (const sourceDir of sourceDirs) {
+			const absoluteSourceDir = path.resolve(process.cwd(), sourceDir);
+			const result = await scanJsdocs(absoluteSourceDir, scanOptions);
+			mergedResult.blocks.push(...result.blocks);
+			mergedResult.scannedFiles += result.scannedFiles;
+			mergedResult.skippedFiles += result.skippedFiles;
+		}
+		
+		LogUtils.info(`Scanned ${mergedResult.blocks.length} JSDocs block(s) from ${mergedResult.scannedFiles} file(s).`);
+		const scheme = translateToSourceScheme(mergedResult, swerrConfig)
 		LogUtils.info(`Translated scan result to swerr Scheme with ${scheme.errors.length} error(s).`);
 		await saveSourceScheme(swerrConfig!, absoluteOutputDir, scheme);
 		await runConverter(swerrConfig!, scheme);
-	}).catch(err => {
+	} catch (err) {
 		LogUtils.error(`Error during scanning: ${err}`);
-	})
+	}
 }
 
 async function config(configPath: string | undefined): Promise<SwerrConfig | null> {

@@ -8,7 +8,7 @@ const initConfigTemplate = `import {markdownConverter, htmlConverter} from "@swe
 // See more configuration options at https://swerr.apidocumentation.com/guide/introduction/config
 export default {
     sourceFile: {
-        inputDir: "./src", // Directory to scan for error definitions
+        inputDirs: ["./src"], // Directories to scan for error definitions
         meta: {
             projectName: "Your Application Name",
             description: "The Application description",
