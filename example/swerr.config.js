@@ -2,7 +2,7 @@ import {markdownConverter, htmlConverter} from "@swerr/converter"
 
 export default {
     sourceFile: {
-        inputDir: "./src/exceptions",
+        inputDirs: ["./src/exceptions"],
         meta: {
             projectName: "Muffin API",
             description: "The API description",
@@ -18,6 +18,9 @@ export default {
             whitelistExtensions: [
                 ".js"
             ],
+            errorClassDetector: (ctx) => {
+                 return ctx.fileName.endsWith("Exception.js");
+            }
         }
     },
     converter: [

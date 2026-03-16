@@ -1,6 +1,6 @@
 import { promises as fs, Dirent } from "node:fs";
 import * as path from "node:path";
-import {JsdocBlock, JsdocTag} from "./types/jsdoc.js";
+import {JsdocBlock, JsdocTag, ErrorClassDetectorContext} from "./types/jsdoc.js";
 import {ScanOptions, ScanResult} from "./types/scan.js";
 import {DEFAULT_IGNORE_DIRS, DEFAULT_MAX_FILE_SIZE} from "../config.js";
 import {LogUtils} from "@swerr/core";
@@ -204,19 +204,39 @@ export async function scanJsdocs(rootDir: string, options: ScanOptions): Promise
 
         const newlineIdx = collectNewlineIndices(text);
         const found = findJsdocBlocks(text);
+        const fileName = path.basename(filePath);
 
         for (const b of found) {
             const startLine = indexToLine(b.index, newlineIdx);
             const lines = normalizeJsdocContentLines(b.raw);
             const parsed = parseNormalizedJsdocLines(lines);
 
-            blocks.push({
+            const block: JsdocBlock = {
                 filePath,
                 startLine,
                 raw: b.raw,
                 description: parsed.description,
                 tags: parsed.tags,
-            });
+            };
+
+            // Apply custom error class detector if provided
+            if (options.errorClassDetector) {
+                const ctx: ErrorClassDetectorContext = {
+                    jsDocTags: block.tags,
+                    fileName,
+                    fileContent: text,
+                    block,
+                };
+
+                if (options.errorClassDetector(ctx)) {
+                    blocks.push(block);
+                } else {
+                    LogUtils.debug(`Custom detector: Skipping JSDoc block in ${filePath} at line ${startLine}`);
+                }
+            } else {
+                // Default behavior: include all blocks (filtering happens in translate-to-source-scheme)
+                blocks.push(block);
+            }
         }
     }
 

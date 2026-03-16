@@ -2,12 +2,13 @@
 - Add github action for versioning and releasing
 - implement unit tests for converters
 
-# 1.1 Refinement
-- Better cmd description and help texts
+# ✅ 1.1 Refinement
 - Alternative config path via `--config` flag
+- `--force` flag to overwrite existing output files
 - `@error` tag should not be required in JSDoc comments with default config
   - You can change this behavior via config if needed
   - `sourceFile.requireErrorTag` config option
+- `inputDir` should be an array to support multiple source directories
 
 # 1.2 Easy Setup
 - `swerr init` interactive command to create a `swerr.config.js` based on user input
@@ -19,7 +20,7 @@
 
 # 2.0 Polish & CI-ready
 - Config Overrides via CLI flags, for example:
-    - `--set sourceFile.inputDir=src` to override input directory
+    - `--set sourceFile.inputDirs=src` to override input directories
     - `--set converter[0].config.fileName=errors.html` to override converter configurations
 - `--dry-run` flag to simulate the generation process without creating files
 - Custom scan rules for source files

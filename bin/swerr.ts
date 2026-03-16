@@ -19,15 +19,16 @@ cli
 		.description("Create documentation from your errors.")
 		.version(packageJson.version);
 
-const commandModules = [
-	runCommand, initCommand
-];
+cli
+		.command("init")
+		.description("Create a basic swerr config file.")
+		.option("-f, --force", "Overwrite existing config file if it exists.")
+		.option("-c, --config <path>", "Path to save the swerr config file.", "swerr.config.js")
+		.action(initCommand);
 
-for (const commandModule of commandModules) {
-	cli
-			.command(commandModule.command)
-			.description(commandModule.description)
-			.action(commandModule.action);
-}
+cli
+		.command("run [configPath]")
+		.description("Create swerr documentation based on the config file.")
+		.action(runCommand);
 
 cli.parse();
