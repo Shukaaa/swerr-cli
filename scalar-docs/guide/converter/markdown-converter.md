@@ -37,14 +37,14 @@ Below is an example showing how to register the Markdown Converter in your `swer
 
 First, import the converter:
 
-```typescript
-import {htmlConverter} from "@swerr/converter"
+```javascript
+import {markdownConverter} from "@swerr/converter"
 ```
 
 Then, register the converter in your configuration:
 
-```typescript
-converter: [
+```javascript
+converters: [
   {
     factory: markdownConverter,
     config: {

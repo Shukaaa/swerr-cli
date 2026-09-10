@@ -20,28 +20,30 @@ From a technical perspective, a converter is:
 
 ### Swerr Configuration
 
-Converters are registered in the `converter` array of the `SwerrConfig`:
+Converters are registered in the `converters` array of the `SwerrConfig`:
 
 ```typescript
 export interface SwerrConfig {
-	sourceFile: {
-		inputDir?: string;
-		meta?: {
-			projectName?: string;
-			version?: string;
-			description?: string;
-		};
-		export?: {
-			saveToFile?: boolean;
-			fileName?: string;
-			outputDir?: string;
-		};
-		options?: {
-			ignoreDirs?: string[];
-			whitelistExtensions?: string[];
-		}
-	},
-	converter: ConverterConfig&lt;any&gt;[]
+	schemaVersion?: 1;
+	project?: {
+		name?: string;
+		version?: string;
+		description?: string;
+	};
+	scan: {
+		directories: string[];
+		ignoredDirectories?: string[];
+		includeExtensions?: string[];
+		requireErrorTag?: boolean;
+		maxFileSizeBytes?: number;
+		errorBlockDetector?: (context: ErrorBlockDetectorContext) =&gt; boolean;
+	};
+	sourceOutput?: {
+		enabled?: boolean;
+		directory?: string;
+		fileName?: string;
+	};
+	converters: ConverterConfig&lt;unknown&gt;[]
 }
 ```
 
@@ -68,7 +70,7 @@ Every converter must follow this function signature:
 export type ConverterFn&lt;CFG&gt; = (
   config: CFG,
   scheme: SwerrScheme
-) =&gt; Promise&lt;void&gt;;
+) =&gt; Promise&lt;void&gt; | void;
 ```
 
 ### Understanding Swerr Scheme
@@ -154,7 +156,7 @@ A well-behaved converter should:
 Once implemented, register your converter in `swerr.config.js`:
 
 ```plaintext
-converter: [
+converters: [
   {
     factory: converter,
     config: {

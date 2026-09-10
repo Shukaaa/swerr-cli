@@ -2,49 +2,78 @@
 
 ## What is Swerr?
 
-Swerr is a CLI tool that generates structured error documentation directly from your source code.
+Swerr is a CLI tool that generates structured error documentation from JSDoc comments in your source code.
 
-It scans your project for exception classes and reads their JSDoc comments to build a normalized error schema. This schema is then passed to one or more converters, which transform it into different output formats such as HTML or Markdown.
+It scans one or more configured directories, builds a normalized `SwerrScheme`, and passes that scheme to the registered converters.
 
 ## Installation
 
-To install the Swerr CLI, use npm:
+Install the CLI globally or as a project dependency:
 
 ```bash
 npm install -g @swerr/cli
 ```
 
-First, you need a `swerr.config.js` file in your project root. You can create it manually or run:
+When the converter package is not installed automatically, install it manually:
+
+```bash
+npm install @swerr/converter
+```
+
+## Create a configuration
+
+Create a `swerr.config.js` file manually or run:
 
 ```bash
 swerr init
 ```
 
-To learn more about the config file, see the following documentation:
+The init command installs `@swerr/converter` automatically because the generated configuration imports the built-in HTML and Markdown converters. Skip this step with:
+
+```bash
+swerr init --no-install
+```
+
+Use `--skip-config` when you want to run the other initialization steps without creating a configuration file:
+
+```bash
+swerr init --skip-config
+```
+
+Use `--config <path>` to write the configuration to another path or `--force` to overwrite an existing file.
+
+The path can also be passed as an optional argument:
+
+```bash
+swerr init ./example/swerr.config.js
+```
+
+When both a positional path and `--config <path>` are provided, the option takes precedence.
+
+The generated configuration uses the current schema. The main sections are:
 
 <scalar-page-link title="Config" description="" path="/guide/introduction/config"></scalar-page-link>
 
-### Generate Exception Docs
+## Document errors
 
-First, your exception classes need the `@error` tag in their JSDoc, for example:
+By default, every JSDoc block in the configured directories can be included. Add `@error` tags and set `scan.requireErrorTag` to `true` when only explicitly marked blocks should be documented:
 
 ```javascript
 /**
- * My Exception class description.
+ * My exception class description.
  * @error
  */
+export class MyException extends Error {}
 ```
 
-This is required for the Swerr CLI to correctly detect exception classes.
+Alternatively, use `scan.errorBlockDetector` to select blocks based on the file name, source content, or parsed JSDoc data.
 
-Depending on the converter, additional JSDoc tags can be used to add important information to the generated documentation.
+## Generate documentation
 
-Once your configuration file and classes are set up, you can generate the Swerr source file with:
+Once the configuration and source files are ready, run:
 
 ```bash
 swerr run
 ```
 
-This command generates error documentation based on your JSDoc comments and the settings in your `swerr.config.js` file.
-
-> When using a converter from the `@swerr/converter` package, make sure to install the dependency
+Swerr scans all configured directories, creates one combined scheme, writes the optional source JSON file, and runs the configured converters.
