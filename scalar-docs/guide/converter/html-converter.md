@@ -43,8 +43,8 @@ import {htmlConverter} from "@swerr/converter"
 
 Then, register the converter in your configuration:
 
-```typescript
-converter: [
+```javascript
+converters: [
   {
     factory: htmlConverter,
     config: {

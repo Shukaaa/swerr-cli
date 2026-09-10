@@ -1,6 +1,6 @@
 import { promises as fs, Dirent } from "node:fs";
 import * as path from "node:path";
-import {JsdocBlock, JsdocTag, ErrorClassDetectorContext} from "./types/jsdoc.js";
+import {JsdocBlock, JsdocTag, ErrorBlockDetectorContext} from "./types/jsdoc.js";
 import {ScanOptions, ScanResult} from "./types/scan.js";
 import {DEFAULT_IGNORE_DIRS, DEFAULT_MAX_FILE_SIZE} from "../config.js";
 import {LogUtils} from "@swerr/core";
@@ -13,7 +13,11 @@ function isProbablyTextFileByExt(filePath: string, exts?: string[]): boolean {
 }
 
 async function* walkDir(root: string, opts: ScanOptions): AsyncGenerator<string> {
-    const ignoreDirs = [...DEFAULT_IGNORE_DIRS, ...(opts?.ignoreDirs || [])].reduce((set, dir) => set.add(dir), new Set<string>());
+    const ignoredDirectories = opts.ignoredDirectories ?? opts.ignoreDirs ?? [];
+    const ignoreDirs = [...DEFAULT_IGNORE_DIRS, ...ignoredDirectories].reduce(
+        (set, dir) => set.add(dir),
+        new Set<string>(),
+    );
 
     const stack: string[] = [root];
     while (stack.length) {
@@ -168,7 +172,8 @@ function parseNormalizedJsdocLines(lines: string[]): ParsedBlock {
 }
 
 async function readTextFileIfEligible(filePath: string, opts: ScanOptions): Promise<string | null> {
-    if (!isProbablyTextFileByExt(filePath, opts?.whitelistExtensions)) return null;
+    const includeExtensions = opts.includeExtensions ?? opts.whitelistExtensions;
+    if (!isProbablyTextFileByExt(filePath, includeExtensions)) return null;
 
     let stat;
     try {
@@ -177,7 +182,7 @@ async function readTextFileIfEligible(filePath: string, opts: ScanOptions): Prom
         return null;
     }
 
-    if (stat.size > DEFAULT_MAX_FILE_SIZE) return null;
+    if (stat.size > (opts.maxFileSizeBytes ?? DEFAULT_MAX_FILE_SIZE)) return null;
 
     try {
         return await fs.readFile(filePath, "utf8");
@@ -205,6 +210,7 @@ export async function scanJsdocs(rootDir: string, options: ScanOptions): Promise
         const newlineIdx = collectNewlineIndices(text);
         const found = findJsdocBlocks(text);
         const fileName = path.basename(filePath);
+        const errorBlockDetector = options.errorBlockDetector ?? options.errorClassDetector;
 
         for (const b of found) {
             const startLine = indexToLine(b.index, newlineIdx);
@@ -219,16 +225,16 @@ export async function scanJsdocs(rootDir: string, options: ScanOptions): Promise
                 tags: parsed.tags,
             };
 
-            // Apply custom error class detector if provided
-            if (options.errorClassDetector) {
-                const ctx: ErrorClassDetectorContext = {
+            // Apply a custom error detector if provided.
+            if (errorBlockDetector) {
+                const ctx: ErrorBlockDetectorContext = {
                     jsDocTags: block.tags,
                     fileName,
                     fileContent: text,
                     block,
                 };
 
-                if (options.errorClassDetector(ctx)) {
+                if (errorBlockDetector(ctx)) {
                     blocks.push(block);
                 } else {
                     LogUtils.debug(`Custom detector: Skipping JSDoc block in ${filePath} at line ${startLine}`);

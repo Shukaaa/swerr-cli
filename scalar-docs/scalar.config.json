@@ -2,9 +2,9 @@
   "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
   "scalar": "2.0.0",
   "info": {
-    "title": "Swerr Docs",
-    "description": "",
-    "version": "Version 0"
+    "title": "Swerr CLI Documentation",
+    "description": "Configuration, scanning, and converter documentation for Swerr CLI.",
+    "version": "1.0.0"
   },
   "siteConfig": {
     "subdomain": "swerr",
@@ -28,7 +28,7 @@
   },
   "versions": {
     "default": {
-      "title": "Version 0",
+      "title": "1.0.0",
       "header": [
         {
           "type": "link",
@@ -58,7 +58,7 @@
                 },
                 "/config": {
                   "type": "page",
-                  "title": "Config",
+                  "title": "Configuration",
                   "description": "",
                   "icon": "line/interface-setting-cog",
                   "filepath": "guide/introduction/config.md"

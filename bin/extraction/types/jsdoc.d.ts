@@ -21,7 +21,7 @@ export type JsdocBlock = {
  * Context object passed to the error class detector function.
  * Provides all relevant information to determine if a js file represents an error class.
  */
-export type ErrorClassDetectorContext = {
+export type ErrorBlockDetectorContext = {
     /** The JSDoc tags found in the block */
     jsDocTags: JsdocTag[];
     /** The file name (basename) */
@@ -31,3 +31,6 @@ export type ErrorClassDetectorContext = {
     /** The JSDoc block itself */
     block: JsdocBlock;
 };
+
+/** @deprecated Use ErrorBlockDetectorContext instead. */
+export type ErrorClassDetectorContext = ErrorBlockDetectorContext;

@@ -1,5 +1,6 @@
 import path from "path";
 import * as fs from "node:fs";
+import {spawn} from "node:child_process";
 import {LogUtils} from "@swerr/core";
 import {SWERR_CONFIG_FILE} from "../config.js";
 
@@ -7,34 +8,28 @@ const initConfigTemplate = `import {markdownConverter, htmlConverter} from "@swe
 
 // See more configuration options at https://swerr.apidocumentation.com/guide/introduction/config
 export default {
-    sourceFile: {
-        inputDirs: ["./src"], // Directories to scan for error definitions
-        meta: {
-            projectName: "Your Application Name",
-            description: "The Application description",
-            version: "1.0.0",
-        },
-        export: {
-            saveToFile: false // Set to true to save the source scheme to a file, perfect for debugging
-        },
-        options: {
-            ignoreDirs: [], // Directories to ignore during scanning (optional)
-            whitelistExtensions: [".js", ".ts"], // File extensions to include during scanning (optional)
-            // Optional: Custom error class detector function
-            // errorClassDetector: (ctx) => {
-            //     // Example: Only include blocks with @error tag
-            //     return ctx.jsDocTags.some(tag => tag.name === "error");
-            //     
-            //     // Example: Include blocks in files ending with "Exception.js" OR with @error tag
-            //     // return ctx.fileName.endsWith("Exception.js") || 
-            //     //        ctx.jsDocTags.some(tag => tag.name === "error");
-            //     
-            //     // Example: Check if the file content contains "extends Error"
-            //     // return ctx.fileContent.includes("extends Error");
-            // }
-        }
+    schemaVersion: 1,
+    project: {
+        name: "Your Application Name",
+        description: "The Application description",
+        version: "1.0.0",
     },
-    converter: [ // Example converters
+    scan: {
+        directories: ["./src"], // Directories to scan for error definitions
+        ignoredDirectories: [], // Directories to ignore during scanning (optional)
+        includeExtensions: [".js", ".ts"], // File extensions to include during scanning (optional)
+        requireErrorTag: false,
+        // Optional: Custom function to determine whether a JSDoc block is an error
+        // errorBlockDetector: (ctx) => {
+        //     return ctx.fileName.endsWith("Exception.js");
+        // }
+    },
+    sourceOutput: {
+        enabled: false, // Set to true to save the generated source scheme to a file
+        directory: "./docs",
+        fileName: "swerr-source.json",
+    },
+    converters: [ // Example converters
         {
             factory: markdownConverter,
             config: {
@@ -50,10 +45,62 @@ export default {
     ]
 }`;
 
-export const initCommand = async (options: { force?: boolean; config?: string }) => {
-	const configFilePath = path.resolve(process.cwd(), options.config ?? SWERR_CONFIG_FILE);
+type InitOptions = {
+	force?: boolean;
+	config?: string;
+	install?: boolean;
+	noInstall?: boolean;
+	skipConfig?: boolean;
+};
+
+function installConverter(): Promise<void> {
+	const isWindows = process.platform === "win32";
+	const npmCommand = isWindows ? (process.env.ComSpec ?? "cmd.exe") : "npm";
+	const npmArgs = isWindows
+		? ["/d", "/s", "/c", "npm.cmd install @swerr/converter"]
+		: ["install", "@swerr/converter"];
+
+	return new Promise((resolve, reject) => {
+		const child = spawn(npmCommand, npmArgs, {
+			cwd: process.cwd(),
+			stdio: "inherit",
+		});
+
+		child.once("error", reject);
+		child.once("close", code => {
+			if (code === 0) {
+				resolve();
+				return;
+			}
+
+			reject(new Error(`npm install exited with code ${code ?? "unknown"}.`));
+		});
+	});
+}
+
+export const initCommand = async (configPath: string | undefined, options: InitOptions) => {
+	const shouldInstall = options.noInstall !== true && options.install !== false;
+	if (shouldInstall) {
+		try {
+			LogUtils.info("Installing @swerr/converter...");
+			await installConverter();
+		} catch (err) {
+			LogUtils.error(`Failed to install @swerr/converter: ${err}`);
+			process.exit(1);
+		}
+	}
+
+	if (options.skipConfig) {
+		LogUtils.success("Initialization completed without creating a config file.");
+		return;
+	}
+
+	const configFilePath = path.resolve(
+		process.cwd(),
+		options.config ?? configPath ?? SWERR_CONFIG_FILE,
+	);
 	const targetName = path.basename(configFilePath);
-	
+
 	const existedBefore = fs.existsSync(configFilePath);
 	if (existedBefore && !options.force) {
 		try {
@@ -68,7 +115,7 @@ export const initCommand = async (options: { force?: boolean; config?: string })
 		}
 		process.exit(1);
 	}
-	
+
 	try {
 		await fs.promises.mkdir(path.dirname(configFilePath), { recursive: true });
 		await fs.promises.writeFile(configFilePath, initConfigTemplate, { encoding: "utf8" });

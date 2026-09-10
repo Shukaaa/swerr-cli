@@ -96,6 +96,8 @@ describe("translateToSourceScheme", () => {
 		
 		const config = {
 			sourceFile: {
+				inputDirs: ["./src"],
+				requireErrorTag: true,
 				meta: {
 					projectName: "P",
 					description: "D",
@@ -113,6 +115,46 @@ describe("translateToSourceScheme", () => {
 		expect(err.name).toBe("E_ONE");
 		expect(err.description).toBe("Beschreibung");
 		expect(err.tags.some((t: any) => t.name === "error")).toBeTruthy();
+	});
+
+	it("includes JSDoc blocks without @error when the tag is optional", async () => {
+		const { translateToSourceScheme } = await import("../../bin/extraction/translate-to-source-scheme.js");
+		const scheme = translateToSourceScheme(
+			{
+				rootDir: "root",
+				scannedFiles: 1,
+				skippedFiles: 0,
+				blocks: [
+					{
+						filePath: "some/AutomaticNamingException.js",
+						startLine: 1,
+						raw: "/** An error */",
+						description: "An error",
+						tags: [],
+					},
+				],
+			} as any,
+			{
+				schemaVersion: 1,
+				project: {name: "P", version: "1.0.0", description: "D"},
+				scan: {
+					directories: ["./src"],
+					ignoredDirectories: [],
+					includeExtensions: [".js"],
+					requireErrorTag: false,
+					maxFileSizeBytes: 1024,
+				},
+				sourceOutput: {
+					enabled: false,
+					directory: "./docs",
+					fileName: "swerr-source.json",
+				},
+				converters: [],
+			},
+		);
+
+		expect(scheme.errors).toHaveLength(1);
+		expect(scheme.errors[0].name).toBe("AutomaticNamingException");
 	});
 });
 

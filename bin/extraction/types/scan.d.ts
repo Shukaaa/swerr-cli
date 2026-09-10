@@ -1,5 +1,5 @@
-import {SwerrConfig} from "../../core/interfaces/swerr-config.js";
-import {ErrorClassDetectorContext} from "./jsdoc.js";
+import type {ErrorBlockDetector, SwerrConfig} from "../../config-schema.js";
+import type {JsdocBlock} from "./jsdoc.js";
 
 export type ScanResult = {
     rootDir: string;
@@ -8,13 +8,18 @@ export type ScanResult = {
     skippedFiles: number;
 };
 
-export type ScanOptions = SwerrConfig["sourceFile"]["options"] & {
+export type ScanOptions = Partial<Pick<
+    SwerrConfig["scan"],
+    "ignoredDirectories" | "includeExtensions" | "maxFileSizeBytes"
+>> & {
     /**
-     * Custom function to determine if a JSDoc block represents an error class.
-     * If not provided, defaults to checking for the @error tag.
-     *
-     * @param ctx - Context object containing jsDocTags, fileName, fileContent, and the block itself
-     * @returns true if the block represents an error class, false otherwise
+     * Custom function to determine if a JSDoc block represents an error.
      */
-    errorClassDetector?: (ctx: ErrorClassDetectorContext) => boolean;
-}
+    errorBlockDetector?: ErrorBlockDetector;
+    /** @deprecated Use ignoredDirectories instead. */
+    ignoreDirs?: string[];
+    /** @deprecated Use includeExtensions instead. */
+    whitelistExtensions?: string[];
+    /** @deprecated Use errorBlockDetector instead. */
+    errorClassDetector?: ErrorBlockDetector;
+};

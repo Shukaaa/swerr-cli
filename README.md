@@ -1,7 +1,6 @@
 # Swerr CLI
 
-Swerr CLI is a command-line interface tool designed to easily create error documentation / catelogs for your projects. <br>
-With the magic of JSDoc comments and Swerr, you can generate comprehensive error documentation in just a few simple steps.
+Swerr CLI generates structured error documentation from JSDoc comments in your source code.
 
 ## Installation
 
@@ -18,6 +17,16 @@ First of all, you need a `swerr.config.js` file in your project root. You can cr
 ```bash
 swerr init
 ```
+
+`swerr init` installs `@swerr/converter` automatically because the generated configuration imports the built-in converters. Use `swerr init --no-install` to skip installation. Use `swerr init --skip-config` when only the other initialization steps are needed. The `--config <path>` and `--force` options can be combined with these flags.
+
+An optional config path can also be passed directly:
+
+```bash
+swerr init ./example/swerr.config.js
+```
+
+If both forms are provided, `--config <path>` takes precedence.
 
 Once you have your configuration file set up, you can run the swerr configuration with:
 

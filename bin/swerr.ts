@@ -20,11 +20,13 @@ cli
 		.version(packageJson.version);
 
 cli
-		.command("init")
+		.command("init [configPath]")
 		.description("Create a basic swerr config file.")
 		.option("-f, --force", "Overwrite existing config file if it exists.")
-		.option("-c, --config <path>", "Path to save the swerr config file.", "swerr.config.js")
-		.action(initCommand);
+		.option("-c, --config <path>", "Override the optional config path.")
+		.option("--no-install", "Skip installing @swerr/converter.")
+		.option("--skip-config", "Skip creating a config file.")
+		.action((configPath: string | undefined, options) => initCommand(configPath, options));
 
 cli
 		.command("run [configPath]")
