@@ -1,0 +1,123 @@
+{
+  "$schema": "https://cdn.scalar.com/schema/scalar-config-next.json",
+  "scalar": "2.0.0",
+  "info": {
+    "title": "Swerr Docs",
+    "description": "",
+    "version": "Version 0"
+  },
+  "siteConfig": {
+    "subdomain": "swerr",
+    "footer": {
+      "filepath": "footer.html"
+    },
+    "head": {
+      "title": "Swerr Docs",
+      "links": [],
+      "meta": [],
+      "styles": [
+        {
+          "path": "footer-theme.css"
+        }
+      ],
+      "scripts": []
+    },
+    "routing": {
+      "redirects": []
+    }
+  },
+  "versions": {
+    "default": {
+      "title": "Version 0",
+      "header": [
+        {
+          "type": "link",
+          "title": "Guide",
+          "to": "/guide"
+        },
+        {
+          "type": "version-selector"
+        }
+      ],
+      "routes": {
+        "/guide": {
+          "title": "Guide",
+          "type": "group",
+          "children": {
+            "/introduction": {
+              "type": "group",
+              "title": "Introduction",
+              "mode": "folder",
+              "children": {
+                "/getting-started": {
+                  "type": "page",
+                  "title": "Getting Started",
+                  "description": "",
+                  "icon": "line/interface-favorite-stars-sparkles",
+                  "filepath": "guide/introduction/getting-started.md"
+                },
+                "/config": {
+                  "type": "page",
+                  "title": "Config",
+                  "description": "",
+                  "icon": "line/interface-setting-cog",
+                  "filepath": "guide/introduction/config.md"
+                }
+              }
+            },
+            "/converter": {
+              "type": "group",
+              "title": "Converter",
+              "mode": "folder",
+              "children": {
+                "/html-converter": {
+                  "type": "page",
+                  "title": "HTML Converter",
+                  "description": "",
+                  "icon": "",
+                  "filepath": "guide/converter/html-converter.md"
+                },
+                "/markdown-converter": {
+                  "type": "page",
+                  "title": "Markdown Converter",
+                  "description": "",
+                  "icon": "",
+                  "filepath": "guide/converter/markdown-converter.md"
+                }
+              }
+            },
+            "/create-own-converter": {
+              "type": "group",
+              "title": "Create Own Converter",
+              "mode": "folder",
+              "children": {
+                "/create-your-first-converter": {
+                  "type": "page",
+                  "title": "Create your first Converter",
+                  "description": "",
+                  "icon": "",
+                  "filepath": "guide/create-own-converter/create-your-first-converter.md"
+                }
+              }
+            },
+            "/github-cli": {
+              "type": "link",
+              "title": "GitHub (CLI)",
+              "url": "https://github.com/Shukaaa/swerr-cli/tree/master"
+            },
+            "/github-converters": {
+              "type": "link",
+              "title": "GitHub (Converters)",
+              "url": "https://github.com/Shukaaa/swerr-converter"
+            },
+            "/github-core": {
+              "type": "link",
+              "title": "GitHub (Core)",
+              "url": "https://github.com/Shukaaa/swerr-core"
+            }
+          }
+        }
+      }
+    }
+  }
+}
